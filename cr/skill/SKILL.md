@@ -4,7 +4,9 @@
 
 针对 Java 项目的代码变更进行分层审核，专注于**架构合规性**和**明显缺陷**的检测。
 
-当前阶段：**宽松建议型**，只标记**高价值问题**。
+- **当前阶段**：宽松建议型，只标记高价值问题
+- **完整规则**：见 [design/rules/languages/java.md](../design/rules/languages/java.md)
+- **审核规范**：见 [java-review.md](./java-review.md)
 
 ## 触发条件
 

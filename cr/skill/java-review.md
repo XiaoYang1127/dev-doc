@@ -1,6 +1,8 @@
-# Java 代码审核规范
+# Java 代码审核规范（当前简化版）
 
-> 阶段：宽松建议型 | 目标：架构合规 + 明显缺陷
+> **定位**：Phase 1 当前使用的简化审核规范
+> **目标**：架构合规 + 明显缺陷
+> **完整规则**：见 [design/rules/languages/java.md](../design/rules/languages/java.md)
 
 ## 1. 分层架构规范
 

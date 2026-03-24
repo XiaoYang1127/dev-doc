@@ -86,5 +86,9 @@ meta: 元数据
 
 ## 配套文档
 
-- [../plan.md](../plan.md) - 系统整体设计方案
-- [rule-framework.md](./rule-framework.md) - 规则管理框架
+| 文档 | 说明 |
+|------|------|
+| [../plan.md](../plan.md) | 系统整体架构与10层审核维度设计 |
+| [../implementation.md](../implementation.md) | 规则执行引擎与开源工具集成实现 |
+| [rule-framework.md](./rule-framework.md) | 规则管理框架（结构规范、生命周期） |
+| [languages/java.md](./languages/java.md) | Java 完整规则库（46条规则） |
