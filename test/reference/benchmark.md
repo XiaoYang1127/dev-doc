@@ -549,12 +549,20 @@ void testCalculatePrice_WithDiscount_ReturnsDiscountedPrice() {
 
 ---
 
-## 九、参考文档
+## 九、测试体系文档
 
-- [unittest.md](./unitTest/unittest.md) - 11种测试思路详解
-- [integrationtest.md](./integrationTest/integrationtest.md) - 集成测试实践
-- [testing-standards.md](../dev/steering/testing-standards.md) - 项目测试规范
-- [backend-claude.md](../dev/backend-claude.md) - Java 后端测试示例
+本调研报告的落地实现请参考以下文档：
+
+| 文档 | 说明 |
+|------|------|
+| [design/architecture.md](../design/architecture.md) | 测试体系整体架构设计 |
+| [design/workflow.md](../design/workflow.md) | 测试工作流程说明 |
+| [strategy.md](./strategy.md) | 11种测试策略选择指南 |
+| [unit/java.md](../unit/java.md) | Java 单元测试具体实现方案 |
+
+## 十、参考文档
+
+- [integration/testcontainers.md](../integration/testcontainers.md) - 集成测试实践（规划中）
 
 ---
 

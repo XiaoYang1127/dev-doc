@@ -1,3 +1,5 @@
+<!-- @format -->
+
 # 单元测试
 
 ## 目标
@@ -56,9 +58,9 @@
 //   { "input": { "username": "admin", "password": "wrong" }, "expected": { "success": false, "code": 401, "error": "密码错误" } }
 // ]
 
-const testCases = require("./test-cases/user-login.json");
+const testCases = require('./test-cases/user-login.json');
 
-test.each(testCases)("登录测试: $input.username", ({ input, expected }) => {
+test.each(testCases)('登录测试: $input.username', ({ input, expected }) => {
   const result = loginService.authenticate(input.username, input.password);
   expect(result.success).toBe(expected.success);
   expect(result.code).toBe(expected.code);
@@ -172,7 +174,7 @@ class UserRepositoryTest {
 **JavaScript 示例**：
 
 ```javascript
-const fc = require("fast-check");
+const fc = require('fast-check');
 
 // 属性：排序后数组长度不变
 fc.assert(
@@ -183,12 +185,7 @@ fc.assert(
 );
 
 // 属性：反转两次等于原字符串
-fc.assert(
-  fc.property(
-    fc.string(),
-    (str) => str.split("").reverse().reverse().join("") === str,
-  ),
-);
+fc.assert(fc.property(fc.string(), (str) => str.split('').reverse().reverse().join('') === str));
 ```
 
 **注意事项**：
@@ -232,15 +229,15 @@ fc.assert(
 
 ```javascript
 // 首次运行生成快照，后续对比
-test("API response matches snapshot", async () => {
+test('API response matches snapshot', async () => {
   const response = await api.getUser(1);
   expect(response).toMatchSnapshot();
 });
 
 // 带名称的快照
-test("complex report", async () => {
+test('complex report', async () => {
   const report = await generateReport();
-  expect(report).toMatchSnapshot("monthly-sales-report");
+  expect(report).toMatchSnapshot('monthly-sales-report');
 });
 ```
 
@@ -653,10 +650,10 @@ class OrderServiceTest {
 **JavaScript 示例**：
 
 ```javascript
-const request = require("supertest");
-const { setupTestApp } = require("./test-helpers");
+const request = require('supertest');
+const { setupTestApp } = require('./test-helpers');
 
-describe("订单流程 E2E", () => {
+describe('订单流程 E2E', () => {
   let app;
 
   beforeAll(async () => {
@@ -668,32 +665,24 @@ describe("订单流程 E2E", () => {
     await app.stop();
   });
 
-  test("完整下单流程", async () => {
+  test('完整下单流程', async () => {
     // 1. 注册用户
-    const user = await request(app)
-      .post("/api/users")
-      .send({ name: "张三", email: "zs@example.com" })
-      .expect(201);
+    const user = await request(app).post('/api/users').send({ name: '张三', email: 'zs@example.com' }).expect(201);
 
     // 2. 创建订单
     const order = await request(app)
-      .post("/api/orders")
-      .set("Authorization", `Bearer ${user.body.token}`)
+      .post('/api/orders')
+      .set('Authorization', `Bearer ${user.body.token}`)
       .send({ items: [{ productId: 1, quantity: 2 }] })
       .expect(201);
 
     // 3. 支付订单
-    await request(app)
-      .post(`/api/orders/${order.body.id}/pay`)
-      .send({ cardNumber: "4111111111111111" })
-      .expect(200);
+    await request(app).post(`/api/orders/${order.body.id}/pay`).send({ cardNumber: '4111111111111111' }).expect(200);
 
     // 4. 验证订单状态
-    const result = await request(app)
-      .get(`/api/orders/${order.body.id}`)
-      .expect(200);
+    const result = await request(app).get(`/api/orders/${order.body.id}`).expect(200);
 
-    expect(result.body.status).toBe("PAID");
+    expect(result.body.status).toBe('PAID');
   });
 });
 ```
