@@ -15,11 +15,11 @@
 
 ### 1.2 目标
 
-| 目标 | 说明 |
-|------|------|
-| 生成时约束 | AI 写代码时直接遵循规范，而非事后审核 |
-| 可验证性 | 关键规则可自动化检查，复杂规则可 AI 审核 |
-| 分层清晰 | 通用规范与项目规范分离，按需引用 |
+| 目标       | 说明                                     |
+| ---------- | ---------------------------------------- |
+| 生成时约束 | AI 写代码时直接遵循规范，而非事后审核    |
+| 可验证性   | 关键规则可自动化检查，复杂规则可 AI 审核 |
+| 分层清晰   | 通用规范与项目规范分离，按需引用         |
 
 ### 1.3 设计原则
 
@@ -35,23 +35,18 @@
 
 ```
 用户级别 (~/.claude/)                          # 通用规范，所有项目生效
-├── CLAUDE.md                                 # 用户级宪法（铁律）
-└── steering/                                 # 用户级通用规范
-    ├── code-style.md                        # 代码风格
-    ├── api-standards.md                     # API 标准
-    ├── testing-standards.md                 # 测试规范
-    ├── development-principles.md            # 开发原则
-    └── git-workflow.md                      # Git 工作流
+└── CLAUDE.md                                 # 用户级规范（内含铁律+引用）
 
 项目级别 ({project}/)                         # 项目特定规范
-├── CLAUDE.md                                 # 项目宪法（引用+扩展）
-└── dev/steering/                            # 项目特定规范
-    ├── backend-claude.md                    # 后端项目规范
-    ├── vue3-claude.md                      # Vue3 项目规范
-    └── flutter-claude.md                    # Flutter 项目规范
+└── CLAUDE.md                                 # 项目规范（内含项目特定规则+引用）
 ```
 
-### 2.2 CLAUDE.md 宪法层级
+**简化原则**：
+- 不单独拆出 `steering/` 目录，规范直接内嵌在 CLAUDE.md 中
+- 详细的代码风格/API标准等内容，作为 CLAUDE.md 的引用段落
+- 按需引用，而非预设完整目录
+
+### 2.2 CLAUDE.md 层级
 
 ```
 Layer 1: 用户级 CLAUDE.md (~/.claude/CLAUDE.md)
@@ -68,68 +63,84 @@ Layer 3: Steering Docs（被 CLAUDE.md 引用）
 
 ## 三、CLAUDE.md 设计
 
-### 3.1 用户级宪法（~/.claude/CLAUDE.md）
+### 3.1 用户级规范（~/.claude/CLAUDE.md）
 
-**原则**：控制在 80 行以内，只放关键铁律。
+**原则**：控制在 80 行以内，只放关键铁律和规范引用。
 
 ```markdown
-# 开发铁律
+# 开发规范
 
-## 绝对禁止（AI 生成时主动检查）
-1. ❌ Controller 直接操作 Repository（分层越界）
-2. ❌ POJO/Entity 直接返回前端（必须用 DTO）
-3. ❌ @Transactional 内远程调用/异步操作（事务失效）
-4. ❌ 不校验入参就暴露 API（安全风险）
-5. ❌ 吞掉异常不记录日志
+## 铁律
 
-## 强制遵循
-- 所有外部输入必须校验
-- 异常必须记录日志（记录原因+堆栈）
-- 事务边界必须清晰
+1. Controller 不直接操作 Repository（分层越界）
+2. POJO/Entity 不直接返回前端（必须用 DTO）
+3. @Transactional 内不远程调用/异步操作（事务失效）
+4. 不校验入参不暴露 API（安全风险）
+5. 异常必须记录日志
 
-## 详细规范
-- [代码风格](steering/code-style.md)
-- [API 标准](steering/api-standards.md)
-- [测试规范](steering/testing-standards.md)
+## 通用规范
+
+- 代码风格：见下方「代码风格」段落
+- API 标准：见下方「API 设计」段落
+- 测试规范：见下方「测试」段落
+
+## 代码风格
+
+（内嵌或引用代码风格规范内容）
+
+## API 设计
+
+（内嵌或引用 API 设计规范内容）
+
+## 测试
+
+（内嵌或引用测试规范内容）
 ```
 
-### 3.2 项目级宪法（{project}/CLAUDE.md）
+### 3.2 项目级规范（{project}/CLAUDE.md）
 
 **原则**：继承用户级 + 补充项目特定，冲突时项目级优先。
 
 ```markdown
 # {项目名} 开发规范
 
-## 继承与覆盖
+## 继承
+
 - 继承用户级 `~/.claude/CLAUDE.md` 的所有规则
 - 项目特定规则**追加**到末尾
 - **冲突时项目级覆盖用户级**
 
-## 项目特定铁律
-1. ❌ 禁止使用 ThreadLocal（内存泄漏风险）
-2. ❌ 禁止硬编码魔法数字（必须用常量）
-...
-
 ## 技术栈
+
 - Spring Boot 3.x / JDK 21
 - Vue 3 + TypeScript
 - Flutter 3.x
 
-## 详细规范（见 dev/steering/）
-- [后端规范](dev/steering/backend-claude.md)
-- [前端规范](dev/steering/vue3-claude.md)
-- [移动端规范](dev/steering/flutter-claude.md)
+## 项目特定规范
+
+1. 禁止使用 ThreadLocal（内存泄漏风险）
+2. 禁止硬编码魔法数字（必须用常量）
+   ...
+
+## 后端规范
+
+（内嵌或引用后端特定规范内容）
+
+## 前端规范
+
+（内嵌或引用前端特定规范内容）
 ```
 
 ### 3.3 引用合并算法
 
-| 层级 | 来源 | 合并方式 |
-|------|------|----------|
-| Layer 1 | 用户级 CLAUDE.md | 基础规则，始终生效 |
-| Layer 2 | 项目级 CLAUDE.md | 追加到 Layer 1，冲突时覆盖 |
-| Layer 3 | Steering Docs | 按需引用，AI 根据文件类型/任务类型选择 |
+| 层级    | 来源             | 合并方式                               |
+| ------- | ---------------- | -------------------------------------- |
+| Layer 1 | 用户级 CLAUDE.md | 基础规则，始终生效                     |
+| Layer 2 | 项目级 CLAUDE.md | 追加到 Layer 1，冲突时覆盖             |
+| Layer 3 | Steering Docs    | 按需引用，AI 根据文件类型/任务类型选择 |
 
 **触发机制**：
+
 - AI 检测到 `*.java` 文件 → 自动引用后端规范
 - AI 检测到 `*.vue` / `*.ts` 文件 → 自动引用前端规范
 - AI 检测到 `*.dart` 文件 → 自动引用移动端规范
@@ -138,25 +149,39 @@ Layer 3: Steering Docs（被 CLAUDE.md 引用）
 
 ---
 
-## 四、Steering Docs 设计
+## 四、规范内容设计
 
-### 4.1 用户级通用规范（~/.claude/steering/）
+### 4.1 铁律（5-10 条，必须遵循）
 
-| 文档 | 用途 | 适用 |
-|------|------|------|
-| code-style.md | 代码风格、命名、反模式 | 所有语言 |
-| api-standards.md | RESTful API 设计规范 | 提供 API 的项目 |
-| testing-standards.md | 测试金字塔、Mock 策略 | 所有项目 |
-| development-principles.md | 铁律、设计原则 | 所有项目 |
-| git-workflow.md | 分支管理、提交规范 | 所有项目 |
+**原则**：放最关键的规则，用示例说明什么是正确/错误。
 
-### 4.2 项目特定规范（{project}/dev/steering/）
-
-| 文档 | 用途 |
+| 铁律 | 说明 |
 |------|------|
-| backend-claude.md | 后端分层、事务、依赖管理 |
-| vue3-claude.md | Vue3 组件、状态管理、API 层 |
-| flutter-claude.md | Flutter 架构、状态管理、平台通道 |
+| 分层越界 | Controller → Service → Manager → Repository，不跨层调用 |
+| DTO 转换 | Entity/PO 不直接返回，必须通过 DTO |
+| 事务边界 | @Transactional 内无 RPC/异步 |
+| 入参校验 | 暴露的 API 必须校验入参 |
+| 日志记录 | 异常必须记录日志（原因+堆栈） |
+
+### 4.2 代码风格（按语言内嵌）
+
+```markdown
+## 代码风格
+
+### Java/Kotlin
+- 缩进：4 空格
+- 命名：camelCase（变量/方法）、PascalCase（类/接口）
+- 分号：不使用
+- ...
+
+### JavaScript/TypeScript
+- 缩进：2 空格
+- ...
+```
+
+### 4.3 API 设计（按需引用）
+
+### 4.4 测试规范（按需引用）
 
 ---
 
@@ -166,8 +191,7 @@ Layer 3: Steering Docs（被 CLAUDE.md 引用）
 
 | 机制 | 说明 |
 |------|------|
-| CLAUDE.md 宪法 | AI 每次任务前读取，强制遵循铁律 |
-| Steering Docs 引用 | AI 按需读取详细规范 |
+| CLAUDE.md | AI 每次任务前读取，遵循铁律 |
 | 示例学习 | 用 good/bad 示例让 AI 理解预期 |
 
 ### 5.2 审核时检查
@@ -175,14 +199,14 @@ Layer 3: Steering Docs（被 CLAUDE.md 引用）
 | 机制 | 说明 |
 |------|------|
 | AI Reviewer | 用 AI 审核代码是否符合规范 |
-| CI 自动检查 | 关键规则用 AST/脚本自动化检查 |
+| CI 自动检查 | 关键规则用脚本自动化检查 |
 | 反馈学习 | 根据审核结果优化规范和提示词 |
 
 ### 5.3 违规处理流程
 
 | 阶段 | 处理方式 |
 |------|----------|
-| 生成中 | AI 主动检查铁律，违反时拒绝生成并说明原因 |
+| 生成中 | AI 主动检查铁律，违反时提示并拒绝 |
 | 生成后 | AI Reviewer 检查，标记警告但不阻止 |
 | CI 检查 | 关键规则自动化检查，失败则阻止合并 |
 
@@ -200,13 +224,13 @@ Layer 3: Steering Docs（被 CLAUDE.md 引用）
 |------|------|
 | 分层越界检查 | SonarQube 规则 / PMD |
 | 方法长度限制 | SonarQube |
-| 重复代码检测 | SonarQube / dupree |
+| 重复代码检测 | SonarQube |
 
-**Phase 3（复杂规则，需调用链分析）**：
+**Phase 3（复杂规则）**：
 | 规则 | 工具 |
 |------|------|
-| @Transactional 内无 RPC | 需要字节码分析（Arthas/Javassist） |
-| 调用链影响分析 | 需要代码血缘分析工具 |
+| @Transactional 内无 RPC | 字节码分析（可选） |
+| 调用链影响分析 | 代码血缘工具（可选） |
 
 ---
 
@@ -215,22 +239,22 @@ Layer 3: Steering Docs（被 CLAUDE.md 引用）
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ 生成时约束                                                  │
-│ CLAUDE.md + Steering Docs                                  │
+│ CLAUDE.md（铁律+规范引用）                                  │
 │ → AI 写代码时遵循规范                                       │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │ 审核时检查                                                  │
-│ cr/review/（AI 审核） + CI Scripts（自动检查）               │
+│ cr/（AI 审核） + CI Scripts（自动检查）                     │
 │ → 生成后验证，发现问题反馈                                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-| 模块 | 职责 |
-|------|------|
-| `dev/ai-standards-system.md` | 规范体系设计（约束 AI 生成） |
-| `cr/` | 审核体系设计（检查代码是否符合规范） |
+| 模块                         | 职责                                 |
+| ---------------------------- | ------------------------------------ |
+| `dev/ai-standards-system.md` | 规范体系设计（约束 AI 生成）         |
+| `cr/`                        | 审核体系设计（检查代码是否符合规范） |
 
 ---
 
@@ -238,12 +262,10 @@ Layer 3: Steering Docs（被 CLAUDE.md 引用）
 
 ```
 Phase 1: 用户级规范
-   └── 建立 ~/.claude/steering/ 通用规范
-   └── 定义铁律和示例
+   └── 建立 ~/.claude/CLAUDE.md（铁律+通用规范）
 
 Phase 2: 项目级规范
-   └── 建立项目特定 CLAUDE.md + dev/steering/
-   └── 配置触发机制
+   └── 建立 {project}/CLAUDE.md（项目特定规则）
 
 Phase 3: CI 集成
    └── Phase 1 规则自动化检查
@@ -260,5 +282,5 @@ Phase 4: AI 审核集成
 ## 八、待确认事项
 
 1. **CI 检查工具**：用 SonarQube / 自研脚本 / ESLint？
-2. **审核触发时机**：MR 创建时 / 代码提交时 / 定时全量？
-3. **反馈学习机制**：如何收集和利用审核反馈？
+2. **铁律数量**：控制在 5 条还是 10 条以内？
+3. **规范格式**：内嵌在 CLAUDE.md 还是外部引用？
