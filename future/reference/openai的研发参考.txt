@@ -1,0 +1,269 @@
+<!-- @format -->
+
+OpenAI用8个Skill把工程师的经验变成AI的工作手册：扛起两个SDK，3个月457个PR
+OpenAI 在昨天公开了一套方法论：他们是怎么用 Codex + Skills 来维护 Agents SDK 开源项目的。
+
+这可是真实跑了三个月、合了 457 个 PR 的生产级实践。
+
+图片
+OpenAI Skills 博客配图
+三个月前，同样的两个仓库，合并了 316 个 PR。换句话说，在引入 Skills 工作流之后，PR 吞吐量直接涨了 45%。
+
+这相当于团队没加人，但产出多了将近一半。
+
+三板斧
+OpenAI 的方案由三个东西组成：
+
+AGENTS.md：写在仓库根目录的「规则手册」，告诉 Codex 这个项目的构建命令、测试流程、兼容性约束
+
+Skills：存在 .agents/skills/ 目录下的工作流包，每个 Skill 是一个文件夹，里面有 SKILL.md 说明文件，加上可选的脚本和参考资料
+
+GitHub Actions：把上面两样搬到 CI 里自动跑
+
+Codex 三板斧：AGENTS.md + Skills + GitHub Actions
+Codex 三板斧：AGENTS.md + Skills + GitHub Actions
+三者配合，把验证、测试、发版、写 PR 这些重复性工作，变成了可复用的自动化流程。
+
+8 个 Skill
+Python 仓库配了 8 个 Skill，各管一摊：
+
+code-change-verification：代码一改，自动跑格式化、lint、类型检查、测试
+
+docs-sync：检查文档是否和代码同步
+
+examples-auto-run：自动跑示例代码，记录日志
+
+final-release-review：发版前做全面审查
+
+implementation-strategy：改 API 之前先评估兼容性
+
+openai-knowledge：通过官方 Docs MCP 拉取最新 API 文档
+
+pr-draft-summary：自动生成分支名、PR 标题和描述
+
+test-coverage-improver：找出覆盖率缺口，建议高价值测试
+
+Python 与 TypeScript 两个仓库的 Skill 全景
+Python 与 TypeScript 两个仓库的 Skill 全景
+TypeScript 仓库在此基础上，还多了几个 monorepo 专属的：changeset-validation 验证变更集，integration-tests 做跨运行时的集成测试，pnpm-upgrade 协调工具链升级。
+
+规则怎么定
+光有 Skill 不够，还得告诉 Codex 什么时候该用哪个。
+
+这件事靠 AGENTS.md 来做。OpenAI 在里面写了一组条件触发规则：
+
+## Mandatory skill usage
+
+- Use $implementation-strategy before editing runtime or API changes
+- Run $code-change-verification when runtime code, tests, examples,
+  or build/test behavior changes
+- Use $pr-draft-summary when substantial code work is ready for review
+  翻译过来就是：改 API 前必须先跑兼容性评估；改了运行时代码、测试、示例或构建行为时必须跑验证；代码写完准备提 PR 时自动生成摘要。
+
+条件触发：根据改动类型匹配 Skill
+条件触发：根据改动类型匹配 Skill
+这里的逻辑是：改了 SDK 代码？必须跑验证。碰了 API？先做兼容性评估。代码写完了？自动生成 PR 描述。
+
+纯文档改动则跳过验证，不浪费算力。
+
+这套「条件触发」的设计值得注意。并非所有改动都走全套流程，而是根据改动类型精准匹配对应的 Skill。
+
+描述即路由
+Skill 的 SKILL.md 里有个 description 字段，OpenAI 发现这个字段的写法直接决定了 Codex 能不能正确找到并调用这个 Skill。
+
+他们给了一组对比：
+
+差的写法：「Run the mandatory verification stack」（执行强制验证流程）
+
+只说了做什么，没说什么时候该用。
+
+好的写法：「Run the mandatory verification stack when changes affect runtime code, tests, or build/test behavior」（当改动涉及运行时代码、测试或构建行为时，执行强制验证流程）
+
+Skill 描述的好坏对比
+Skill 描述的好坏对比
+多了 when 条件，Codex 就知道什么场景下该触发了。
+
+描述不只是给人看的注释，而是给 AI 看的路由规则。
+
+这个细节看似不起眼，但其实揭示了一个更大的设计原则：在 AI 工作流中，元数据本身就是控制流。
+
+过去写代码，控制流靠 if/else、靠 switch/case。现在给 AI 写工作流，控制流靠的是一段自然语言描述。Codex 读到 description 里的「当改动涉及运行时代码时」这句话，就像读到了一个 if 语句。
+
+我们正在进入一个新的编程范式：用自然语言编程，执行者是 AI。 AGENTS.md 就是这门「新语言」的代码文件。
+
+模型与脚本的分工
+OpenAI 在文章中提出了一个值得细想的原则：解释、比较、报告交给模型；确定性的重复操作交给脚本。
+
+模型与脚本的分工
+模型与脚本的分工
+具体来说：
+
+模型负责的事情：读代码、理解意图、对比差异、生成报告、做判断。
+
+脚本负责的事情：跑 make format、make lint、make typecheck、make tests 这些命令。
+
+为什么要这样分？
+
+因为模型擅长理解和推理，但每次执行 shell 命令都有不确定性（环境差异、路径问题等）。而脚本执行是确定性的，跑一百次结果都一样。
+
+把两者混在一起，Skill 会变得既脆弱又臃肿。分开之后，脚本保证执行可靠，模型专注于判断和沟通。
+
+两层测试
+集成测试是开源 SDK 的难点。OpenAI 设计了一个两层验证策略：
+
+两层验证策略：语义验证 + 跨运行时测试
+两层验证策略：语义验证 + 跨运行时测试
+第一层：examples-auto-run
+
+自动跑仓库里的所有示例代码。遇到交互式提示自动回答，遇到需要人工确认的操作自动批准。每个示例单独记录日志，失败的生成 rerun 文件方便复跑。
+
+关键在于验证方式：模型会去读每个示例的源码注释，理解这个示例「本来想干什么」，然后把实际运行日志和设计意图做对比。
+
+这已经超越了简单的 pass/fail，达到了语义级别的验证。
+
+第二层：integration-tests（TypeScript 专属）
+
+先把包发布到本地的 Verdaccio 私有仓库，然后在 Node.js、Bun、Deno、Cloudflare Workers、Vite React 等不同运行时环境下测试安装和运行行为。
+
+这层测试的目的是确保发布后的包和开发时的行为一致。毕竟打包、发布、安装这些环节，每一步都可能出幺蛾子。
+
+发版审查
+final-release-review 这个 Skill 只干一件事：把上一个 release tag 和当前 main 分支做 diff，然后逐项检查。
+
+检查项包括：公共 API 的向后兼容性、是否有回归、迁移说明是否齐全。
+
+最终输出一个明确的结论，比如：
+
+🟢 GREEN LIGHT TO SHIP（可以发布）
+Scope: 38 files changed (+1450/-789)（变更范围：38 个文件，新增 1450 行，删除 789 行）
+Risk: Python 3.9 support removed（风险：移除了 Python 3.9 支持）
+Action: Ensure release notes clearly call out the Python 3.9 drop
+（需在发布说明中明确提及不再支持 Python 3.9）
+默认状态是「可以发布」，只有 diff 中出现具体问题证据时才会阻塞。
+
+发版审查流程：默认放行，有证据才拦
+发版审查流程：默认放行，有证据才拦
+这个设计思路和很多团队相反。
+
+大多数团队的发版流程是「默认不能发，逐项确认后才放行」。OpenAI 反过来：默认能发，有证据才拦。
+
+对于一个快速迭代的开源项目来说，后者显然更高效。
+
+信任光谱
+这个「默认放行」的选择，背后其实藏着一个更本质的问题：你对 AI 的信任到什么程度？
+
+信任光谱
+信任光谱
+光谱的最左边是零信任：AI 写的每一行代码都要人审、每一次发版都要人批。安全，但慢得要命。
+
+中间偏左是大多数团队现在的位置：AI 帮忙写代码，但人得一条条确认，逐项放行。稍微快一点，但瓶颈还在人身上。
+
+OpenAI 选择了光谱偏右的位置：让 AI 自己跑验证、自己写 PR、自己做发版审查，只在发现具体问题时才把人拉进来。
+
+这就像管理团队。一个新人入职，你盯着他每封邮件、每行代码、每次提交。三个月后他证明了自己，你开始只看周报。半年后你连周报都不看了，只在出问题时介入。
+
+OpenAI 对 Codex 的信任模型，就是「三个月后的信任」。
+
+但值得注意的是，这种信任不是盲目的。它建立在一套完善的验证机制之上：Skill 确保每次改动都经过检查，AGENTS.md 确保检查规则一致，GitHub Actions 确保规则不会被绕过。
+
+高信任的前提，是高质量的自动化保障。 检查照样做，只是做检查的变成了 AI。
+
+代码审查的新分工
+引入 Codex 之后，代码审查的职责被重新划分了。
+
+代码审查的新分工
+代码审查的新分工
+Codex 负责审查的：
+
+常规 bug 和回归
+
+测试覆盖缺口
+
+有明确正确性标准的常规改进
+
+人类继续负责的：
+
+架构和设计选择（多种合理方案时需要权衡）
+
+影响产品预期或向后兼容性的行为变更
+
+命名、迁移和发版沟通决策
+
+跨团队协调
+
+简单说：确定性的给机器，需要判断力的留给人。
+
+这把审查瓶颈从低风险的日常 PR 上释放出来，让人类 reviewer 把精力集中在真正需要讨论的设计决策上。
+
+老师傅的手艺
+到这里，事实部分已经讲完了。但我觉得 OpenAI 这篇博客里最耐人寻味的东西，不在于具体用了哪些 Skill，而在于一个更深层的变化。
+
+在软件行业，一直有一种叫「部落知识」的东西。
+
+什么是部落知识？就是那些只存在于老员工脑子里、从来没被写下来的东西。比如「这个接口不能随便改，因为三年前有个客户依赖了这个返回值的顺序」，比如「发版前一定要先跑这个脚本，不然 CI 会挂」，比如「这个 PR 模板别忘了勾那个 checkbox，不然会漏掉 changelog」。
+
+每个项目都有。老人知道，新人不知道。老人离职了，知识就断了。
+
+知识传递的三次进化
+知识传递的三次进化
+工程知识的传递经历了三个阶段：
+
+第一阶段，口口相传。老师傅带新人，手把手教。效率低，不可扩展，老师傅一走就完。
+
+第二阶段，写成文档。Wiki、README、Confluence，新人可以自己读。但文档会过时，会和代码脱节，而且读了也不一定能执行对。
+
+第三阶段，就是 OpenAI 正在做的事。把知识写成 AI 能读、能理解、能执行的格式。
+
+AGENTS.md 不只是文档，它是 Codex 的行为规范。SKILL.md 不只是说明，它是 Codex 的工作流程序。这些文件写给 AI 看，AI 读完就能照着干。
+
+这就像丰田生产系统的进化。
+
+1950 年代，丰田的生产知识全在老工人手里。后来大野耐一把这些知识提炼成了「标准作业」，写成操作手册，贴在每个工位上。任何人来了都能按手册干活，质量有保障。再后来，这些标准作业被编码进了机器人程序，机器人照着执行，比人还精准。
+
+从老工人的脑子，到墙上的手册，到机器人的程序。
+
+OpenAI 正在走同一条路：从工程师的脑子，到 Wiki 上的文档，到仓库里的 Skill。
+
+丰田与 OpenAI 的知识编码化路径
+丰田与 OpenAI 的知识编码化路径
+区别在于，丰田的机器人只能执行固定动作，而 Codex 能理解、能判断、能灵活处理。它不只是在「照着做」，而是在「理解了之后做」。
+
+开放标准
+OpenAI 这套方案并不是只有 OpenAI 能用。它背后的几个组件都已经开放了。
+
+AGENTS.md 现在是一个开放标准，由 Linux Foundation 下的 Agentic AI Foundation 托管。OpenAI Codex、Google Jules、Cursor、Amp 等多个 AI 编码工具都支持读取 AGENTS.md。
+
+Agent Skills 规范也已开源，地址是 agentskills.io。Anthropic 最早发布了这个规范，随后 Microsoft、OpenAI、Atlassian、Figma、GitHub、Cursor 等都已采纳。Claude Code 中的 Skills 功能就是基于这个规范。
+
+这样一来，你在 AGENTS.md 里定义的规则、在 .agents/skills/ 里写的 Skill，理论上可以被多个 AI 编码工具复用。
+
+图片
+开放标准：多个 AI 编码工具共享同一套规则
+写一次规则，多个 Agent 都能用。
+
+新的编程
+如果把视野拉远一点，OpenAI 这篇博客透露的不只是「怎么维护 SDK」。
+
+Python 包 PyPI 月下载量 1470 万，TypeScript 包 npm 月下载量 150 万。这个体量的项目，靠纯人力维护已经越来越难撑住了。
+
+而 Skills + AGENTS.md + CI 的组合，本质上是一种新的编程。
+
+传统编程：人写代码 → 机器执行代码。
+
+新编程：人写规则 → AI 理解规则 → AI 写代码 → 机器执行代码。
+
+人不再直接告诉机器「怎么做」，而是告诉 AI「该做什么、什么时候做、做到什么标准」。AI 自己决定具体实现。
+
+这和过去十年「基础设施即代码」（Infrastructure as Code）的思路异曲同工。IaC 是用代码描述基础设施的期望状态，让工具自动达成。AGENTS.md + Skills 是用自然语言描述工程流程的期望行为，让 AI 自动执行。
+
+从 Infrastructure as Code（基础设施即代码），到 Engineering as Prose（工程即散文）。
+
+从传统编程到新范式
+从传统编程到新范式
+回到 OpenAI 的 Kazuhiro Sera，他在 X 上发了那条推介绍这篇博客时说：「希望对你们的项目也有帮助。」
+
+他们确实把自己吃狗粮的过程完整公开了。8 个 Skill 的设计思路、AGENTS.md 的写法、description 字段的踩坑经验、模型和脚本的分工原则。
+
+工程师的经验变成了仓库里的一个文件夹。
+
+而这个文件夹，是写给 AI 看的。

@@ -1,0 +1,132 @@
+年化 25 亿！Claude Code 掌门人：传统 PM 那套打法，过时了
+去年 7 月，Cat Wu 从 Anthropic 跳槽去了 Cursor。
+
+两周后，她又回来了。
+
+现在她是 Claude Code 的产品负责人。
+
+这款产品年化收入 25 亿美元，从公开发布到 10 亿只用了 6 个月，比 ChatGPT 还快。
+
+图片
+3 月 19 日她在 Anthropic 官方博客发了一篇长文，把 Claude Code 团队做产品的方法论摊开讲了一遍。
+
+「传统 PM 那套打法，过时了。」
+
+
+Cat Wu 亮出了一组数据。
+
+METR 是一家专门追踪 AI 能力增长的研究机构，它的测试方法是把真实的编程任务交给 AI Agent，看它能搞定多难的活。
+
+16 个月前，当时最强的模型是 Sonnet 3.5 new。它能完成的任务，人类大约需要 21 分钟。
+
+
+现在 Opus 4.6 能完成人类需要将近 15 小时的任务。
+
+16 个月，提升了 41 倍。
+
+图片
+传统 PM 做产品有一个底层假设，项目启动时技术能做什么，结束时差不多也就那样。
+
+需求分析、PRD、产品路线图、排期、评审、开发、测试、上线，整套下来至少几个月。
+
+这个假设现在不成立了。
+
+你还在写 PRD 的时候，模型已经能做你写进「未来规划」里的事了。
+
+
+Cat Wu 从 2024 年 10 月开始养成了一个习惯。
+
+每出一代新模型，她就让 Claude Code 给开源白板工具 Excalidraw 加一个表格功能。同一个提示词，不同的模型，看能走多远。
+
+Sonnet 3.5 new，失败。
+
+Opus 4，偶尔成功，够录一段 demo。
+
+Opus 4.6，一次搞定。她现在敢在几千名开发者面前现场演示，不用提前录视频。
+
+同一个任务，一年半，从「做不了」到「当众演示」。因为底层模型在进化。
+
+
+所以他们不写产品路线图了。
+
+Anthropic 内部有个机制叫「Side Quest」，翻译过来就是「支线任务」。团队里任何人都可以花一个下午做个小实验，不用和产品主路线图一致，不用审批。
+
+做出来的原型内部试用，好用的打磨发布，不好用的扔掉。
+
+Claude Code 桌面版，来自一个 Side Quest。
+
+AskUserQuestion 工具，来自一个 Side Quest。
+
+Todo 列表，也是。
+
+这些都是 Claude Code 目前最受欢迎的功能。没有一个在产品路线图里。
+
+
+
+图片
+Todo 列表刚上线的时候有个问题。
+
+模型干完活不会主动勾选完成项。用户看着列表一条都没打勾，以为啥也没干。
+
+团队的解法是每隔几条消息塞一句系统提醒，「别忘了更新你的 todo 列表。」
+
+有用是有用。但很蠢。
+
+下一代模型出来了，这个行为自带了。那条提醒，也就删了。
+
+Cat Wu 说这种事反复发生。系统提示词从前几代到 Opus 4.6，砍掉了 20%。那些为弥补模型不足写的补丁，一个接一个变成了冗余代码。
+
+Anthropic 内部有一条所有团队通用的原则，「Do the simple thing that works.」 做最简单的、能跑通的方案。
+
+模型今天不够好，别急着搭脚手架。等下一代出来，问题可能直接解决了。你花三周搭的临时方案，新模型一发布就成了技术债。
+
+
+PRD 也基本不写了。
+
+现在的做法是写完 spec，直接丢给 Claude Code，看它能造出什么来。哪怕造出来很粗糙，也比在文档里描述功能更有说服力。
+
+同事 Noah 写了一份插件规范，丢给 Claude Code 之后，造出来的原型接近生产级。而最终发布的版本就是基于那个原型迭代的。
+
+每周站会也取消了，换成了 demo 分享。每个人展示自己最近做的东西，有真实使用量的继续打磨。
+
+Cat Wu 分享了一条建议。
+
+「Pro-tip: after you write a spec, send it to Claude Code and see if it can build it. Even a rough prototype changes the conversation.」
+
+写完需求，丢给 Claude Code 跑一遍。哪怕原型很粗糙，整个讨论都会不一样。
+
+
+她每天的工作时间被三个 AI 产品瓜分了。
+
+Claude.ai 是思考伙伴，想方案、聊策略的时候跟它聊，不需要它动手。需要写代码的活交给 Claude Code，原型、评测、脚本都归它。剩下的杂事丢给 Cowork，从收邮件到搜 Slack 全包了。
+
+Boris Cherny，就是跟她一起去 Cursor 又一起回来的那位，用 Claude Code 花了 10 天造出了 Cowork。
+
+Cat Wu 加入 Anthropic 之前做过产品工程师，也在 Index Ventures 做过投资人。当 VC 的时候，她自己写代码扫描 X 上的新公司公告，写脚本检测开源项目的增长趋势。2024 年 8 月加入 Anthropic 后，用 Sonnet 3.5 花了几百个小时做 Streamlit 应用、跑评测，一行代码没手写。
+
+
+团队分工的边界，正在消失。
+
+设计师在提交代码。工程师在做产品决策。PM 在写原型和评测。
+
+图片
+Cat Wu 说这能行的前提是目标清晰。
+
+每个人知道方向，就可以自己决定怎么走。PM 的新角色不是搬需求，是在模型疯狂迭代的混乱里帮团队找到方向，然后把挡道的东西清理掉。
+
+
+不只是 Anthropic。
+
+Decagon 产品总监 Bihan Jiang 说，
+
+「Good product teams have always tested their ideas with real customers, and that instinct hasn't changed. What has is how many more high-quality ideas we can actually put through the loop.」
+
+好的产品团队始终基于真实用户验证想法。本质没变，变的是能力。以前一个月测试三个想法，现在能测三十个。
+
+PM 的手艺已经从「提前把一切定义清楚」变成了「加速发现」。
+
+
+去年 7 月，Cat Wu 和 Boris Cherny 一起去了 Cursor 的母公司 Anysphere。
+
+两周后，他俩一起回来了。
+
