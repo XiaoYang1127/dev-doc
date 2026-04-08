@@ -1,36 +1,41 @@
 <!-- @format -->
 
-1、铁律
+1、各端 Claude.md 重构完成
 
-2、规范。
+结构：
+```
+dev/
+├── backend/
+│   ├── backend-claude.md     # 主入口（精简）
+│   └── references/           # 详细信息（自动加载）
+│       ├── 01-naming.md
+│       ├── 02-api.md
+│       ├── 03-testing.md
+│       ├── 04-deployment.md
+│       ├── 05-security.md
+│       └── 06-database.md
+├── frontend/
+│   ├── vue3-claude.md       # 主入口（精简）
+│   └── references/
+│       ├── 01-naming.md
+│       ├── 02-component.md
+│       ├── 03-state.md
+│       ├── 04-routing.md
+│       ├── 05-testing.md
+│       └── 06-deployment.md
+└── mobile/
+    ├── flutter-claude.md    # 主入口（精简）
+    └── references/
+        ├── 01-naming.md
+        ├── 02-widget.md
+        ├── 03-state.md
+        ├── 04-testing.md
+        └── 05-deployment.md
+```
 
-3、项目架构：分层设计，目录结构，采用feature-first设计模式
+设计原则：
+- 主入口精简到 200-300 行，聚焦核心原则和常用命令
+- references/ 目录存放详细规范，Claude Code 自动扫描
+- 编号排序，便于查找
+- 通用规范保留在 ~/.kiro/steering/，各端引用即可
 
-4、开发：
-
-4.0 技术约束。Springboot3，jdk21，mybatis-plus，redis，mysql，rabbitmq
-
-4.1 代码风格 (code-conventions.md) - 指定命名模式、文件组织、导入排序和架构决策。包括首选代码结构、组件模式和要避免的反模式示例。
-
-4.2 API 标准 (api-standards.md) - 定义 REST 约定、错误响应格式、认证流程和版本策略。包括端点命名模式、HTTP 状态码使用和请求/响应示例。
-
-4.3 数据库设计
-
-4.3 测试方法 (testing-standards.md) - 建立单元测试模式、集成测试策略、模拟方法和覆盖率期望。记录首选测试库、断言样式和测试文件组织。
-
-4.4 安全指南 (security-policies.md) - 记录认证要求、数据验证规则、输入清理标准和漏洞预防措施。包括特定于您应用程序的安全编码实践。
-
-4.5 部署流程 (deployment-workflow.md) - 概述构建程序、环境配置、部署步骤和回滚策略。包括 CI/CD 管道详细信息和环境特定要求。
-
-UI原型设计
-
-参考4，写下app端的相关。技术用flutter
-
-7。参考4，写下web端的相关。技术用vue3
-
-参考上面内容，做这么几件事情 1、基础要求。
-
-丰富第1点，第2点内容，作为个人用户级别的Claude.md
-补充 通用开发规范。如api，测试，代码风格，git提交等。也作为个人用户级别的Claude.md 3、各端开发规范，放在各端的代码仓库根目录下。
-后端技术栈，分层设计，目录结构，开发规范要求，作为后端项目的Claude.md
-移动端，web端也如此。
