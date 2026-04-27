@@ -95,8 +95,9 @@
 cd your-java-project
 
 # 在 Claude Code 中使用
-/cr                    # 审核当前 git 变更
-/cr <文件路径>          # 审核指定文件
+# 先将 cr/guides/java/commands/*.md 复制到目标项目 .claude/commands/
+/code-review-java-change             # 审核当前 Java git 变更
+/code-review-java-scan               # 全量巡检 Java 项目
 ```
 
 ---
@@ -111,6 +112,8 @@ dev-doc/                       # 本项目根目录
 ├── cr/                        # 【代码审核】模块
 │   ├── README.md              # 模块总览
 │   ├── cr-platform-design.md  # 审核中台架构设计
+│   ├── guides/                # 可复用审核指南
+│   ├── skills/                # 可复用 Codex Skills
 │   └── review/                # 审核类型设计
 │
 ├── dev/                       # 【开发规范】模块

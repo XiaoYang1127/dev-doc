@@ -1,0 +1,8 @@
+interface:
+  display_name: "Java Code Review"
+  short_description: "Review Java backend diffs and project risks"
+  brand_color: "#2563EB"
+  default_prompt: "Use $java-code-review to review this Java backend change with severity, confidence, and JSON-ready findings."
+
+policy:
+  allow_implicit_invocation: true
