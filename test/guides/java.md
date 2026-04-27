@@ -1,8 +1,11 @@
+<!-- @format -->
+
 # Java 单元测试方案设计
 
 > 本文档是 [测试中台架构设计](../platform-design.md) 的 Java 语言具体实现方案
 >
 > 相关文档：
+>
 > - 测试流程说明 - 规划中
 > - [测试策略选型](../reference/strategy.md) - 11种测试策略选择指南
 
@@ -803,7 +806,7 @@ unit-test:
       junit: target/surefire-reports/TEST-*.xml
     paths:
       - target/site/jacoco/
-  coverage: "/Total.*?([0-9]{1,3})%/"
+  coverage: '/Total.*?([0-9]{1,3})%/'
 
 integration-test:
   stage: test
