@@ -25,6 +25,7 @@
 cr/
 ├── README.md                   # 本文件
 ├── cr-platform-design.md       # 审核中台架构设计
+├── z_node.md                   # 初始思路记录
 └── review/                    # 审核类型
     ├── change-review.md       # 变更审核
     ├── full-scan.md           # 全量巡检

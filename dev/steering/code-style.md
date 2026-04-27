@@ -2,6 +2,8 @@
 inclusion: auto
 ---
 
+<!-- @format -->
+
 # 代码风格规范
 
 ## 一、通用代码风格
@@ -72,14 +74,14 @@ from myapp.utils import helper
 
 ```typescript
 // TypeScript 示例
-import { ref, computed } from "vue";
-import type { User } from "vue";
+import { ref, computed } from 'vue';
+import type { User } from 'vue';
 
-import axios from "axios";
-import dayjs from "dayjs";
+import axios from 'axios';
+import dayjs from 'dayjs';
 
-import { useUserStore } from "@/stores/user";
-import type { ApiResponse } from "@/types/api";
+import { useUserStore } from '@/stores/user';
+import type { ApiResponse } from '@/types/api';
 ```
 
 ### 2.2 导入规则

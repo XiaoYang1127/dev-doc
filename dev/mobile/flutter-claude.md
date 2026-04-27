@@ -1,47 +1,12 @@
----
-inclusion: auto
----
+<!-- @format -->
 
 # Flutter 移动端开发规范
 
-> 详细规范参考 `references/` 目录，Claude Code 会自动扫描相关文件。
+> 用户级别规范，跨项目复用。详细规范参考 `references/` 目录。
 
-## 一、技术栈
+---
 
-| 类别 | 技术 | 版本 |
-| ---- | ---- | ---- |
-| 框架 | Flutter | 3.x+ |
-| 语言 | Dart | 3.x+ |
-| 状态管理 | Riverpod | 推荐 |
-| 路由 | go_router | 推荐 |
-| 网络 | dio | - |
-| 本地存储 | shared_preferences / hive | - |
-
-## 二、目录结构（Feature-First）
-
-```
-lib/
-├── main.dart                   # 应用入口
-├── app/                        # 应用配置
-│   ├── app.dart               # App 根组件
-│   ├── routes.dart            # 路由配置
-│   └── theme.dart             # 主题配置
-├── core/                       # 核心模块
-│   ├── network/              # 网络层
-│   ├── storage/              # 存储层
-│   └── utils/                # 工具类
-├── shared/                     # 共享模块
-│   ├── widgets/              # 通用组件
-│   └── constants/            # 共享常量
-└── features/                   # 功能模块
-    ├── auth/                 # 认证模块
-    │   ├── data/
-    │   ├── domain/
-    │   └── presentation/
-    └── home/                 # 首页模块
-```
-
-## 三、核心原则
+## 一、架构理念
 
 ### Feature-First（特性优先）
 
@@ -49,112 +14,48 @@ lib/
 
 ### Clean Architecture 分层
 
-- **Presentation Layer**: UI 和状态管理
-- **Domain Layer**: 业务逻辑和实体
-- **Data Layer**: 数据源和仓储实现
+- **Presentation Layer**：Widget 展示、用户交互、状态管理（Provider）
+- **Domain Layer**：业务逻辑、实体定义、仓储接口
+- **Data Layer**：仓储实现、数据源（API / 本地）
 
-### 状态管理选择
+---
 
-| 场景 | 推荐方案 |
-| ---- | -------- |
-| 简单状态 | `StateProvider` |
-| 异步数据 | `FutureProvider` / `StreamProvider` |
-| 复杂逻辑 | `StateNotifierProvider` |
+## 二、状态管理原则
 
-## 四、常用命令
+### Riverpod 2.0 核心规则
 
-```bash
-# 获取依赖
-flutter pub get
+- 使用 `sealed class` 建模状态，强制穷举检查
+- 状态变更通过 `StateNotifierProvider`
+- Provider 按职责分层：数据获取、业务逻辑、UI 状态
 
-# 代码生成
-flutter pub run build_runner build --delete-conflicting-outputs
+### 状态位置划分
 
-# 分析代码
-flutter analyze
+| 状态位置                | 适用场景                            |
+| ----------------------- | ----------------------------------- |
+| Widget 内部             | UI 相关状态                         |
+| `StateProvider`         | 简单可复用状态                      |
+| `StateNotifierProvider` | 复杂业务逻辑状态                    |
+| 全局单例（get_it）      | 跨模块共享（ApiClient、Repository） |
 
-# 测试
-flutter test
+---
 
-# Android 打包
-flutter build apk --release
+## 三、Widget 开发原则
 
-# iOS 打包
-flutter build ios --release
-```
+- 所有 Widget 尽可能使用 `const` 构造函数（强制）
+- 页面组件继承 `ConsumerWidget` 或 `StatelessWidget`
+- 禁止在 Widget build 方法中执行副作用
 
-## 五、references 导航
+---
 
-| 文档 | 内容 |
-| ---- | ---- |
-| 01-naming | 文件、类、变量、目录命名规范 |
-| 02-widget | StatelessWidget、StatefulWidget 开发 |
-| 03-state | Riverpod Provider、Repository、依赖注入 |
-| 04-testing | 单元测试、Widget 测试、集成测试 |
-| 05-deployment | Android/iOS 打包、签名配置、发布清单 |
+## 四、详细规范索引
 
-## 六、网络请求封装
+| 文档                                         | 内容                                    | 参考标准                        |
+| -------------------------------------------- | --------------------------------------- | ------------------------------- |
+| [01-naming](references/01-naming.md)         | 文件、类、变量、目录命名规范            | Dart 官方 / Flutter 官方        |
+| [02-widget](references/02-widget.md)         | StatelessWidget、StatefulWidget 开发    | Flutter 官方文档                |
+| [03-state](references/03-state.md)           | Riverpod Provider、Repository、依赖注入 | Flutter 官方架构 + Riverpod 2.0 |
+| [04-testing](references/04-testing.md)       | 单元测试、Widget 测试、集成测试         | -                               |
+| [05-deployment](references/05-deployment.md) | Android/iOS 打包、签名配置              | -                               |
 
-```dart
-class ApiClient {
-  late final Dio _dio;
-
-  ApiClient() {
-    _dio = Dio(BaseOptions(
-      baseUrl: 'https://api.example.com',
-      connectTimeout: const Duration(seconds: 10),
-    ));
-    _dio.interceptors.add(AuthInterceptor());
-  }
-
-  Future<T> get<T>(String path, {Map<String, dynamic>? params}) async {
-    final response = await _dio.get(path, queryParameters: params);
-    return _parseResponse<T>(response);
-  }
-
-  T _parseResponse<T>(Response response) {
-    final data = response.data;
-    if (data['code'] == 200) {
-      return data['data'] as T;
-    }
-    throw ApiException(data['message']);
-  }
-}
-```
-
-## 七、主题配置
-
-```dart
-class AppTheme {
-  static ThemeData lightTheme = ThemeData(
-    useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: Colors.blue,
-      brightness: Brightness.light,
-    ),
-    appBarTheme: const AppBarTheme(
-      centerTitle: true,
-      elevation: 0,
-    ),
-  );
-}
-```
-
-## 八、本地存储
-
-```dart
-// 使用 shared_preferences
-final prefs = await SharedPreferences.getInstance();
-await prefs.setString('token', token);
-
-// 使用 flutter_secure_storage（敏感数据）
-final secureStorage = FlutterSecureStorage();
-await secureStorage.write(key: 'token', value: token);
-```
-
-## 九、性能优化
-
-- 使用 `ListView.builder` 代替 `ListView`
-- 尽可能使用 `const` 构造函数
-- 使用 `RepaintBoundary` 隔离重绘区域
-- 图片使用 `cached_network_image` 缓存
+> Flutter 官方架构文档：https://docs.flutter.dev/development/data-and-backend/state-mgmt
+> Riverpod 2.0：https://riverpod.dev/

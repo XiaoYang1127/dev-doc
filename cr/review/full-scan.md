@@ -56,5 +56,5 @@
 
 ## 相关文档
 
-- [design.md](../design.md) - 整体架构设计
-- [design/plan.md](../design/plan.md) - L9 全量扫描维度设计
+- [审核中台架构设计](../cr-platform-design.md) - 整体架构设计
+- L9 全量扫描维度设计 - 规划中

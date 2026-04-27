@@ -421,7 +421,7 @@ describe("订单流程 E2E", () => {
 
 ## 六、参考文档
 
-- [测试体系架构](../design/architecture.md) - 整体架构设计
-- [测试流程说明](../design/workflow.md) - 测试工作流程详解
-- [Java 单元测试](../unit/java.md) - Java 具体实现方案
-- [业界大厂实践调研](./report.md) - 国内外大厂测试实践调研
+- [测试体系架构](../platform-design.md) - 整体架构设计
+- 测试流程说明 - 规划中
+- [Java 单元测试](../guides/java.md) - Java 具体实现方案
+- [业界大厂实践调研](./benchmark.md) - 国内外大厂测试实践调研

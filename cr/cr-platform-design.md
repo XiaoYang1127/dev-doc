@@ -430,7 +430,10 @@ Phase 4: 持续学习
 
 | 文档                                          | 说明                     |
 | --------------------------------------------- | ------------------------ |
-| [10 层审核详细设计](design/plan.md)           | 各审核维度的详细设计     |
-| [规则框架](design/rules/rule-framework.md)    | 规则管理通用理论         |
-| [Java 规则库](design/rules/languages/java.md) | Java 完整规则库（46 条） |
-| [Skill 实现](../skill/SKILL.md)               | Claude Code Skill 实现   |
+| [变更审核](review/change-review.md)           | L1-L8 变更审核设计       |
+| [全量巡检](review/full-scan.md)               | L9 全量扫描设计          |
+| [持续学习](review/continuous-learning.md)     | L10 反馈学习设计         |
+| 10 层审核详细设计                             | 规划中                   |
+| 规则框架                                      | 规划中                   |
+| Java 规则库                                   | 规划中                   |
+| Skill 实现                                    | 规划中                   |

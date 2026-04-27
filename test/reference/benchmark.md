@@ -555,14 +555,14 @@ void testCalculatePrice_WithDiscount_ReturnsDiscountedPrice() {
 
 | 文档 | 说明 |
 |------|------|
-| [design/architecture.md](../design/architecture.md) | 测试体系整体架构设计 |
-| [design/workflow.md](../design/workflow.md) | 测试工作流程说明 |
+| [platform-design.md](../platform-design.md) | 测试体系整体架构设计 |
+| 测试工作流程说明 | 规划中 |
 | [strategy.md](./strategy.md) | 11种测试策略选择指南 |
-| [unit/java.md](../unit/java.md) | Java 单元测试具体实现方案 |
+| [guides/java.md](../guides/java.md) | Java 单元测试具体实现方案 |
 
 ## 十、参考文档
 
-- [integration/testcontainers.md](../integration/testcontainers.md) - 集成测试实践（规划中）
+- TestContainers 集成测试实践 - 规划中
 
 ---
 

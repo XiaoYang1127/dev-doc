@@ -1,4 +1,8 @@
+<!-- @format -->
+
 # 部署规范
+
+> 参考来源：Vite 官方部署指南 (https://vitejs.dev/guide/static-depoly.html)
 
 ## 环境变量
 

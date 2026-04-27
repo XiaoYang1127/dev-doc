@@ -46,9 +46,9 @@
 **覆盖技术栈**：
 | 技术栈 | 文档 | 说明 |
 |--------|------|------|
-| Vue 3 | [vue3-claude.md](dev/vue3-claude.md) | Vue 3 + TypeScript 开发规范 |
-| Flutter | [flutter-claude.md](dev/flutter-claude.md) | Flutter 跨平台开发规范 |
-| Java 后端 | [backend-claude.md](dev/backend-claude.md) | Spring Boot 开发规范 |
+| Vue 3 | [vue3-claude.md](dev/frontend/vue3-claude.md) | Vue 3 + TypeScript 开发规范 |
+| Flutter | [flutter-claude.md](dev/mobile/flutter-claude.md) | Flutter 跨平台开发规范 |
+| Java 后端 | [backend-claude.md](dev/backend/backend-claude.md) | Spring Boot 开发规范 |
 
 **规范内容**：
 
@@ -66,10 +66,10 @@
 **核心文档**：
 | 文档 | 说明 |
 |------|------|
-| [架构设计](test/design/architecture.md) | 分层测试策略、质量指标体系 |
-| [工作流程](test/design/workflow.md) | 需求→开发→CI/CD 全流程 |
-| [策略指南](test/report/strategy.md) | 11 种测试策略选择指南 |
-| [Java 单测](test/unit/java.md) | Java 单元测试完整方案 |
+| [架构设计](test/platform-design.md) | 分层测试策略、质量指标体系 |
+| [策略指南](test/reference/strategy.md) | 11 种测试策略选择指南 |
+| [业界调研](test/reference/benchmark.md) | 国内外大厂测试实践调研 |
+| [Java 单测](test/guides/java.md) | Java 单元测试完整方案 |
 
 **测试目标**：
 
@@ -110,22 +110,21 @@ dev-doc/                       # 本项目根目录
 │
 ├── cr/                        # 【代码审核】模块
 │   ├── README.md              # 模块总览
-│   ├── design/                # 架构设计文档
-│   │   ├── plan.md            # 10层审核架构
-│   │   └── rules/             # 规则体系
-│   └── skill/                 # Claude Code Skill
+│   ├── cr-platform-design.md  # 审核中台架构设计
+│   └── review/                # 审核类型设计
 │
 ├── dev/                       # 【开发规范】模块
-│   ├── vue3-claude.md         # Vue 3 规范
-│   ├── flutter-claude.md      # Flutter 规范
-│   └── backend-claude.md      # Java 后端规范
+│   ├── README.md              # 模块总览
+│   ├── backend/               # Java 后端规范
+│   ├── frontend/              # Vue 3 前端规范
+│   ├── mobile/                # Flutter 移动端规范
+│   └── steering/              # 通用开发规范
 │
 └── test/                      # 【测试体系】模块
     ├── README.md              # 模块总览
-    ├── design/                # 测试架构设计
-    ├── unit/                  # 单元测试实践
-    ├── integration/           # 集成测试实践
-    └── report/                # 研究报告与策略
+    ├── platform-design.md     # 测试中台架构设计
+    ├── guides/                # 实现指南
+    └── reference/             # 参考资料与策略
 ```
 
 ---
@@ -160,7 +159,7 @@ Phase 4: 持续优化
 
 1. **发现问题** - 提交 Issue 描述问题
 2. **改进文档** - Fork 后修改，提交 PR
-3. **反馈实践** - 在 [cr/skill/feedback/](cr/skill/feedback/) 记录审核效果
+3. **反馈实践** - 记录审核效果并同步完善 [cr/](cr/) 相关文档
 
 ---
 

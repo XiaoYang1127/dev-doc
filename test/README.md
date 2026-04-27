@@ -53,6 +53,7 @@
 test/
 ├── README.md                # 本文件
 ├── platform-design.md       # 平台架构设计
+├── z_node.md                # 测试体系初始思路
 ├── reference/              # 参考资料
 │   ├── benchmark.md        # 业界调研
 │   └── strategy.md         # 测试策略

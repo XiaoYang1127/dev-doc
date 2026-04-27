@@ -1,10 +1,10 @@
 # Java 单元测试方案设计
 
-> 本文档是 [测试体系架构](../design/architecture.md) 的 Java 语言具体实现方案
+> 本文档是 [测试中台架构设计](../platform-design.md) 的 Java 语言具体实现方案
 >
 > 相关文档：
-> - [测试流程说明](../design/workflow.md) - 测试工作流程详解
-> - [测试策略选型](../report/strategy.md) - 11种测试策略选择指南
+> - 测试流程说明 - 规划中
+> - [测试策略选型](../reference/strategy.md) - 11种测试策略选择指南
 
 ---
 

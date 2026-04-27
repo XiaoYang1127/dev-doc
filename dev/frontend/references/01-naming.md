@@ -82,3 +82,43 @@ components/
 - 全部使用 kebab-case
 - 功能模块目录：`features/auth`、`features/home`
 - 组件目录：`components/common/buttons`
+
+## 路径别名配置
+
+推荐配置 `@/*` 指向 `src/*`，简化导入路径：
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  }
+}
+```
+
+```typescript
+// vite.config.ts
+import { resolve } from 'path';
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+    },
+  },
+});
+```
+
+**导入示例：**
+
+```typescript
+// ✅ 推荐
+import { useUserStore } from '@/stores/user';
+import UserCard from '@/components/UserCard.vue';
+
+// ❌ 不推荐
+import { useUserStore } from '../../stores/user';
+```

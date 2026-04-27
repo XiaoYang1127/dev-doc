@@ -2,6 +2,8 @@
 inclusion: auto
 ---
 
+<!-- @format -->
+
 # Git 工作流规范
 
 ## 一、分支管理

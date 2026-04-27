@@ -1,3 +1,5 @@
+<!-- @format -->
+
 # 部署规范
 
 ## 打包命令
@@ -26,12 +28,12 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ```yaml
 # docker-compose.yml
-version: "3.8"
+version: '3.8'
 services:
   app:
     build: .
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
       - SPRING_PROFILES_ACTIVE=prod
     restart: always

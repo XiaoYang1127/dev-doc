@@ -2,6 +2,8 @@
 inclusion: auto
 ---
 
+<!-- @format -->
+
 # API 开发标准
 
 ## 一、RESTful API 设计规范

@@ -82,5 +82,5 @@
 
 ## 相关文档
 
-- [design.md](../design.md) - 整体架构设计
-- [design/plan.md](../design/plan.md) - 10 层审核维度详细设计
+- [审核中台架构设计](../cr-platform-design.md) - 整体架构设计
+- 10 层审核维度详细设计 - 规划中

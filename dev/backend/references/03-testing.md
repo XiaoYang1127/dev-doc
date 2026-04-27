@@ -1,6 +1,6 @@
-# 测试规范
+<!-- @format -->
 
-> 通用测试原则参考 `~/.kiro/steering/testing-standards.md`
+# 测试规范
 
 ## 单元测试（JUnit 5 + Mockito）
 

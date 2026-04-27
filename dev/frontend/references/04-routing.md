@@ -1,29 +1,36 @@
+<!-- @format -->
+
 # 路由规范
+
+> 参考来源：Vue Router 官方文档 (https://router.vuejs.org/)
 
 ## 路由配置
 
 ```typescript
 // router/index.ts
-import { createRouter, createWebHistory } from "vue-router";
-import type { RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHistory } from 'vue-router';
+import type { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
-    path: "/login",
-    name: "Login",
-    component: () => import("@/features/auth/views/Login.vue"),
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/features/auth/views/Login.vue'),
     meta: { requiresAuth: false },
   },
   {
-    path: "/",
-    component: () => import("@/layouts/DefaultLayout.vue"),
-    redirect: "/home",
+    path: '/',
+    component: () => import('@/layouts/DefaultLayout.vue'),
     children: [
       {
-        path: "home",
-        name: "Home",
-        component: () => import("@/features/home/views/Home.vue"),
-        meta: { title: "首页", requiresAuth: true },
+        path: '',
+        redirect: '/home',
+      },
+      {
+        path: 'home',
+        name: 'Home',
+        component: () => import('@/features/home/views/Home.vue'),
+        meta: { title: '首页', requiresAuth: true },
       },
     ],
   },
@@ -44,11 +51,11 @@ router.beforeEach((to, from, next) => {
   const userStore = useUserStore();
 
   // 设置页面标题
-  document.title = (to.meta.title as string) || "应用名称";
+  document.title = (to.meta.title as string) || '应用名称';
 
   // 权限验证
   if (to.meta.requiresAuth && !userStore.isLoggedIn) {
-    next({ name: "Login", query: { redirect: to.fullPath } });
+    next({ name: 'Login', query: { redirect: to.fullPath } });
   } else {
     next();
   }
