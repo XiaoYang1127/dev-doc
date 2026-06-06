@@ -2,13 +2,11 @@
 
 # 从 VSCode 理解 PC 软件如何插件化
 
-## 0. 主题升华
+> 本文属于 [Mod 化 / 插件化设计总览](think.md) 中的“具体实现”维度，用 VSCode 的结构反推 PC 软件的扩展点、声明、运行宿主和 API 边界。
 
-VSCode 不是一个单纯的“插件很多的编辑器”，它更像是一个典型的 PC 软件插件化样板：
+## 0. 核心观察
 
-> 主程序保持稳定，能力通过扩展点开放；插件通过声明文件接入，在受控运行环境中执行，并通过 API 调用主程序能力。
-
-因此，从 VSCode 了解 PC 软件插件化，重点不是学习“怎么做插件市场”，而是理解一套通用结构：
+VSCode 的架构可以简化为一个公式：
 
 ```text
 PC 插件化软件 = Core 本体 + Extension Points 扩展点 + Manifest 声明 + Plugin Host 运行环境 + API 边界
@@ -16,45 +14,38 @@ PC 插件化软件 = Core 本体 + Extension Points 扩展点 + Manifest 声明 
 
 ```mermaid
 flowchart LR
-    Core[Core 本体<br/>稳定主程序] --> Points[Extension Points<br/>扩展点 / 插槽]
-    Manifest[Manifest 声明<br/>插件要插到哪里] --> Points
-    Plugin[Plugin 插件<br/>具体能力实现] --> Host[Plugin Host<br/>受控运行环境]
-    Host --> API[Core API<br/>访问主程序能力]
+    Core[Core 本体] --> Points[Extension Points<br/>扩展点]
+    Manifest[Manifest 声明] --> Points
+    Plugin[Plugin 插件] --> Host[Plugin Host<br/>运行环境]
+    Host --> API[Core API]
     API --> Core
 ```
 
-这个结构可以迁移到大多数 PC 软件：
+这套结构在 VSCode 中的具体形态：
 
-- 编辑器类软件。
-- 数据分析类软件。
-- 办公工具类软件。
-- 设计 / 创作类软件。
-- 企业桌面客户端。
-- AI PC 工具。
+| 抽象层 | VSCode 中的实现 |
+|--------|----------------|
+| Core 本体 | 编辑器主程序（窗口、命令系统、菜单） |
+| Extension Points | Contribution Points（命令、菜单、视图、语言服务） |
+| Manifest | `package.json` 中的 `contributes` 和 `activationEvents` |
+| Plugin Host | Extension Host 进程 |
+| Core API | Extension API（`vscode` 命名空间） |
 
 ---
 
-## 一、为什么用 VSCode 来理解 PC 软件插件化
+## 一、VSCode 解决了哪些插件化的共性问题
 
-PC 软件天然会遇到几个问题：
+PC 软件在扩展能力时通常面临这些问题：
 
-- 功能越做越多，主程序越来越重。
-- 用户需求分散，长尾能力不适合全部内置。
-- 客户定制容易侵入主程序。
-- 软件启动和运行容易被扩展能力拖慢。
-- 产品失败后，能力难以复用。
+| 问题 | VSCode 的解决方式 |
+|------|------------------|
+| 功能膨胀导致主程序过重 | Core 只保留基础框架，长尾能力通过插件提供 |
+| 扩展点不明确 | Contribution Points 明确定义可扩展位置 |
+| 插件接入不可控 | `package.json` 声明能力、入口、激活条件 |
+| 插件影响主程序稳定性 | Extension Host 进程隔离插件运行 |
+| 插件与主程序耦合 | Extension API 作为唯一调用通道 |
 
-VSCode 的插件化正好回答了这些问题：
-
-| PC 软件问题 | VSCode 的回答 |
-| --- | --- |
-| 功能太多 | Core 只做稳定主框架，长尾能力插件化 |
-| 扩展点混乱 | 用 Contribution Points 明确定义可扩展位置 |
-| 插件接入不可控 | 用 `package.json` 声明能力、入口、激活条件 |
-| 插件影响主程序 | 用 Extension Host 承载插件运行 |
-| 插件和主程序耦合 | 插件通过 Extension API 调用 Core |
-
-所以，VSCode 的价值不是“插件数量多”，而是它把 PC 软件拆成了清晰的几层。
+VSCode 的价值在于分层清晰：Core、扩展点、声明、运行环境、API 各负其责。
 
 ---
 
@@ -62,13 +53,13 @@ VSCode 的插件化正好回答了这些问题：
 
 VSCode 可以简化成五个部分：
 
-| 部分 | 在 VSCode 中的含义 | 对 PC 软件的抽象 |
-| --- | --- | --- |
-| Core | 编辑器主程序 | PC 软件本体 |
-| Contribution Points | 命令、菜单、视图、语言能力等扩展点 | 插槽 |
-| `package.json` | 插件声明文件 | Manifest |
-| Extension Host | 插件运行进程 | 插件运行环境 |
-| Extension API | 插件访问 VSCode 的接口 | Core API |
+| 部分                | 在 VSCode 中的含义                 | 对 PC 软件的抽象 |
+| ------------------- | ---------------------------------- | ---------------- |
+| Core                | 编辑器主程序                       | PC 软件本体      |
+| Contribution Points | 命令、菜单、视图、语言能力等扩展点 | 插槽             |
+| `package.json`      | 插件声明文件                       | Manifest         |
+| Extension Host      | 插件运行进程                       | 插件运行环境     |
+| Extension API       | 插件访问 VSCode 的接口             | Core API         |
 
 ```text
 VSCode 插件化结构
@@ -201,127 +192,109 @@ flowchart TB
 
 ---
 
-## 四、PC 软件应该优先设计哪些扩展点
+## 四、VSCode 定义的扩展点类型
 
-插件化不是“允许别人随便写代码”，而是主程序先定义哪些地方可以被扩展。
+VSCode 通过 Contribution Points 定义了 20+ 种扩展位置。常见的类型包括：
 
-PC 软件可以优先设计这些扩展点：
-
-| 扩展点 | 说明 | 示例 |
-| --- | --- | --- |
-| 命令扩展点 | 插件注册一个可执行命令 | 导出、搜索、分析、同步 |
-| 菜单扩展点 | 插件向菜单增加入口 | 文件菜单、工具菜单、右键菜单 |
-| 工具栏扩展点 | 插件增加按钮或工具组 | 运行、格式化、上传、AI 分析 |
-| 侧边栏扩展点 | 插件增加侧边面板 | 文件树、任务面板、AI 面板 |
-| 页面扩展点 | 插件提供完整页面 | 设置页、看板页、编辑页 |
-| 文件处理扩展点 | 插件处理特定文件类型 | CSV、PDF、Markdown、图片 |
-| 数据源扩展点 | 插件连接外部数据 | 数据库、API、第三方 SaaS |
-| AI 工具扩展点 | 插件提供 AI 能力 | Skill、MCP、Agent 工具 |
+| 扩展点 | VSCode 中的用途 | 典型场景 |
+|--------|----------------|---------|
+| `commands` | 注册可执行命令 | 导出、搜索、格式化 |
+| `menus` | 向菜单/右键菜单增加入口 | 编辑器右键、资源管理器右键 |
+| `views` | 增加侧边栏面板 | 文件树、大纲、调试面板 |
+| `languages` | 语言支持（高亮、补全、诊断） | TypeScript、Python 支持 |
+| `debuggers` | 调试器接入 | Node.js、Python 调试 |
+| `themes` | 主题和图标主题 | 暗色/亮色主题 |
+| `configuration` | 配置项定义 | 编辑器设置、插件专属配置 |
 
 ```mermaid
 flowchart TB
-    Core[PC 软件 Core] --> Command((命令扩展点))
-    Core --> Menu((菜单扩展点))
-    Core --> Toolbar((工具栏扩展点))
-    Core --> Sidebar((侧边栏扩展点))
-    Core --> Page((页面扩展点))
-    Core --> File((文件处理扩展点))
-    Core --> Data((数据源扩展点))
-    Core --> AI((AI 工具扩展点))
+    Core[VSCode Core] --> Command((commands))
+    Core --> Menu((menus))
+    Core --> View((views))
+    Core --> Lang((languages))
+    Core --> Debug((debuggers))
+    Core --> Theme((themes))
+    Core --> Config((configuration))
 ```
 
-扩展点设计得越清楚，插件越不需要侵入主程序。
+扩展点的本质是”主程序定义接口，插件实现能力”。插件无法随意修改 Core，只能在预定义的位置插入功能。
 
 ---
 
-## 五、插件声明：让插件接入变得可控
+## 五、插件声明：VSCode 的 `package.json` 模式
 
-VSCode 插件通过 `package.json` 声明自己的能力。PC 软件也应该设计类似的 `plugin.json`。
+VSCode 插件通过 `package.json` 的特定字段声明自己的能力。以下是关键字段：
 
-插件声明至少应该包含：
-
-| 字段 | 说明 |
-| --- | --- |
+| 字段 | 作用 |
+|------|------|
 | `name` | 插件名称 |
 | `version` | 插件版本 |
-| `main` | 插件入口 |
-| `activationEvents` | 插件何时激活 |
-| `contributes` | 插件贡献哪些命令、菜单、页面、文件处理器 |
-| `permissions` | 插件需要哪些权限 |
-| `dependencies` | 插件依赖哪些能力或版本 |
+| `main` | 插件入口文件 |
+| `activationEvents` | 激活时机，如 `onLanguage:python`、`onCommand:xxx` |
+| `contributes` | 声明在哪些扩展点贡献能力 |
+| `engines.vscode` | 兼容的 VSCode 版本 |
 
-示意：
+示例：
 
 ```json
 {
-  "name": "csv-viewer",
-  "version": "1.0.0",
-  "main": "./index.js",
-  "activationEvents": ["onFile:csv"],
-  "contributes": {
-    "commands": ["csv.openPreview"],
-    "menus": ["file.context"],
-    "views": ["csv.preview"]
-  },
-  "permissions": ["file.read"]
+  “name”: “csv-viewer”,
+  “version”: “1.0.0”,
+  “main”: “./index.js”,
+  “activationEvents”: [“onLanguage:csv”],
+  “contributes”: {
+    “commands”: [“csv.openPreview”],
+    “menus”: [“editor/context”],
+    “views”: [“csv.preview”]
+  }
 }
 ```
 
-插件声明的意义：
+这种声明式接入的效果：
 
-- 主程序可以提前知道插件要做什么。
-- 插件可以按需激活。
-- 权限可以在运行前检查。
-- 插件升级和兼容可以被管理。
+- 主程序启动时即可了解插件的能力和意图
+- 插件不在声明中的操作无法执行
+- 兼容性和版本依赖在 `engines.vscode` 中明确
+- 插件升级替换时依赖声明保持不变
 
 ---
 
-## 六、按需激活：避免 PC 软件被插件拖慢
+## 六、按需激活：VSCode 的延迟加载机制
 
-PC 软件最容易遇到的问题是插件过多导致启动慢。VSCode 的启发是：插件不应该全部随主程序启动。
+VSCode 不会在启动时加载所有插件。它通过 `activationEvents` 控制插件的启动时机：
 
-```text
-不推荐：
-启动 PC 软件 -> 加载全部插件 -> 初始化全部功能 -> 启动变慢
-
-推荐：
-启动 PC 软件 -> 只启动 Core -> 满足条件时再激活插件
-```
-
-常见激活条件：
-
-| 激活条件 | 示例 |
-| --- | --- |
-| 打开某类文件 | 打开 `.csv` 时激活表格插件 |
-| 点击某个菜单 | 点击“导出 PDF”时激活导出插件 |
-| 进入某个页面 | 进入数据看板时激活图表插件 |
-| 调用某个命令 | 执行搜索命令时激活检索插件 |
-| 连接某个数据源 | 连接数据库时激活数据源插件 |
+| 激活事件 | 示例 |
+|----------|------|
+| `onLanguage:csv` | 打开该语言文件时激活 |
+| `onCommand:csv.openPreview` | 执行该命令时激活 |
+| `onView:csv.preview` | 侧边栏视图展开时激活 |
+| `*` | 始终随主程序启动（不推荐） |
 
 ```mermaid
 flowchart LR
-    Start[启动 PC 软件] --> Core[只启动 Core]
-    Core --> Idle[插件暂不加载]
+    Start[VSCode 启动] --> Core[Core 初始化]
+    Core --> Idle[插件列表加载但不执行]
 
-    Idle --> Event{触发激活条件}
-    Event -->|打开文件| P1[加载文件插件]
-    Event -->|点击菜单| P2[加载菜单插件]
-    Event -->|进入页面| P3[加载页面插件]
-    Event -->|连接数据源| P4[加载数据源插件]
+    Idle --> Event{激活事件触发}
+    Event -->|onLanguage| P1[激活该语言插件]
+    Event -->|onCommand| P2[激活该命令插件]
+    Event -->|onView| P3[激活该视图插件]
 ```
+
+`*` 事件虽然可用，但多数插件使用精确事件来避免影响启动速度。
 
 ---
 
-## 七、运行隔离：保护主程序稳定性
+## 七、运行隔离：VSCode 的 Extension Host 机制
 
-VSCode 使用 Extension Host 承载插件运行。PC 软件也应该考虑类似的隔离层。
+VSCode 的插件不直接在编辑器进程内运行，而是放在独立的 Extension Host 进程中：
 
 ```text
-Core 主程序
+VSCode 主进程 (Electron 渲染进程)
 │
 ├─ Plugin Manager：安装、启用、禁用、卸载
 │
-└─ Plugin Host：运行插件、隔离错误、限制权限
+└─ Extension Host (独立 Node.js 进程)
       ├─ 插件 A
       ├─ 插件 B
       └─ 插件 C
@@ -329,103 +302,97 @@ Core 主程序
 
 ```mermaid
 flowchart TB
-    Core[PC 软件 Core] --> Manager[Plugin Manager]
-    Manager --> Host[Plugin Host<br/>插件运行环境]
+    Core[VSCode 渲染进程] --> Manager[Plugin Manager]
+    Manager --> Host[Extension Host<br/>独立 Node.js 进程]
 
     Host --> P1[插件 A]
     Host --> P2[插件 B]
     Host --> P3[插件 C]
 
-    P1 --> API[受控 Core API]
+    P1 --> API[Extension API<br/>vscode 命名空间]
     P2 --> API
     P3 --> API
     API --> Core
 ```
 
-隔离带来的价值：
+进程隔离的效果：
 
-- 插件崩溃时，尽量不拖垮主程序。
-- 插件权限可以被限制。
-- 插件性能可以被监控。
-- 插件启用、禁用、卸载更清晰。
-- 插件和 Core 的边界更稳定。
+- Extension Host 崩溃时编辑器窗口不受影响
+- 插件不能直接访问 DOM 和 Node.js API，只能通过 `vscode` 命名空间
+- 插件性能问题（CPU 占用等）可以被宿主进程监控和限制
+- 启用、禁用插件只需通知 Extension Host 重新加载
 
 ---
 
-## 八、从 VSCode 反推 PC 插件化落地步骤
+## 八、VSCode 插件体系的关键模块拆解
 
-PC 软件如果要开始插件化，可以按下面顺序推进：
+VSCode 的插件系统围绕以下几个模块运转：
 
 ```mermaid
 flowchart LR
     A[识别 Core] --> B[定义扩展点]
-    B --> C[设计 plugin.json]
-    C --> D[设计 Core API]
-    D --> E[实现 Plugin Host]
-    E --> F[做 1-2 个插件 PoC]
-    F --> G[沉淀插件规范]
+    B --> C[声明 Manifest]
+    C --> D[定义 Core API]
+    D --> E[实现 Extension Host]
+    E --> F[插件 PoC 验证]
 ```
 
-具体步骤：
+1. **Core 的界定**
+   VSCode 将编辑器核心（窗口、命令、菜单、文件管理）作为不变本体，扩展能力全部外部化。
 
-1. **识别 Core**
-   明确哪些能力必须稳定在主程序里，例如窗口、菜单、设置、权限、生命周期。
+2. **扩展点的定义**
+   Contribution Points 是 VSCode 预定义的接口集合。每个扩展点都有明确的数据格式和生命周期。
 
-2. **定义扩展点**
-   先开放少量高价值插槽，例如菜单、工具栏、页面、文件处理、数据源。
+3. **Manifest 声明**
+   插件通过 `package.json` 声明 `contributes`、`activationEvents`、`engines`。主程序启动时解析所有声明，不立即执行插件代码。
 
-3. **设计插件声明**
-   让插件通过 `plugin.json` 声明挂载位置、激活条件、权限和入口。
+4. **Core API 边界**
+   插件只能通过 `vscode` 命名空间与编辑器交互，不能直接访问文件系统、DOM 或内部实现。
 
-4. **设计 Core API**
-   插件只能通过 API 调用主程序能力，不能直接访问内部实现。
+5. **Extension Host 进程隔离**
+   Extension Host 是独立的 Node.js 进程，负责加载、执行、生命周期管理、错误捕获和卸载。
 
-5. **实现 Plugin Host**
-   负责加载、运行、隔离、禁用、卸载插件。
-
-6. **做 PoC**
-   先用 1-2 个插件验证，例如 CSV 预览插件、AI 工具插件、数据源插件。
+6. **插件分发**
+   VSCode 通过 Marketplace 分发插件，但插件的运行、加载完全由本地 Extension Host 控制，不依赖市场侧逻辑。
 
 ---
 
-## 九、产品战略层面的意义
+## 九、产品层面的后果
 
-从 VSCode 看 PC 软件插件化，最终不是为了“技术上更酷”，而是为了产品可持续演进。
+VSCode 这套插件化设计带来了几个实际后果：
 
 ```mermaid
 flowchart TB
-    A[PC 软件产品] --> B[Core 保持稳定]
-    A --> C[长尾功能插件化]
-    A --> D[客户定制插件化]
-    A --> E[通用能力资产化]
+    Core[VSCode Core] --> Stable[主框架稳定迭代，频率低]
+    Core --> Market[插件市场持续增长]
+    Core --> Custom[客户场景通过插件覆盖]
 
-    B --> F[降低主程序复杂度]
-    C --> G[减少功能堆叠]
-    D --> H[降低定制侵入]
-    E --> I[后续产品复用]
+    Stable --> Light[编辑器启动快，体量可控]
+    Market --> Tail[长尾需求由社区解决]
+    Custom --> Less[减少定制分支维护]
 ```
 
-它带来的收益是：
-
-- 主程序更轻，避免功能不断堆叠。
-- 高频能力进入 Core，长尾能力通过插件补充。
-- 客户定制通过插件交付，减少修改主程序。
-- 不同产品可以复用同一批插件。
-- 产品失败后，插件能力仍然可以沉淀。
+- **主程序更轻**：VSCode 本身只包含编辑器的通用能力，语言支持、工具集成全部插件化。
+- **长尾由社区覆盖**：用户需要的各种小众功能（语言支持、工具集成、主题），通过插件市场自行匹配。
+- **定制不侵入源码**：企业客户或团队定制通过打包私用插件实现，不需 fork 和修改 VSCode 源码。
+- **能力可复用**：同类型产品（VS Code for the Web、GitHub Codespaces）复用同一套插件协议和生态。
 
 ---
 
-## 十、阶段性结论
+## 十、总结
 
-从 VSCode 理解 PC 软件插件化，可以得出一个通用结论：
+VSCode 的插件化可以简化为五个部分：
 
-> PC 软件插件化的本质，是把主程序从“功能堆叠体”变成“能力承载框架”。  
-> Core 负责稳定框架，扩展点定义接入位置，Manifest 声明插件能力，Plugin Host 负责受控运行，Core API 负责边界交互。
+```text
+Core 本体 -> Extension Points 扩展点 -> Manifest 声明 -> Extension Host 进程 -> Extension API 边界
+```
 
-因此，PC 软件要插件化，优先讨论的不是插件市场，而是五件事：
+| 部分 | VSCode 中的实体 | 作用 |
+|------|----------------|------|
+| Core | 编辑器主进程 | 稳定基础框架 |
+| Extension Points | Contribution Points | 定义可扩展的位置 |
+| Manifest | `package.json` | 声明插件能力和激活条件 |
+| Extension Host | 独立 Node.js 进程 | 插件运行和隔离 |
+| Extension API | `vscode` 命名空间 | 插件与 Core 的交互边界 |
 
-1. Core 保留哪些稳定能力。
-2. 先开放哪些扩展点。
-3. 插件如何声明、加载、激活。
-4. 插件如何隔离运行。
-5. 哪些能力值得沉淀为插件资产。
+这套架构的核心逻辑是：Core 和插件之间的关系不是”调用和被调用”，而是”框架承载能力”。插件不修改 Core，Core 不假设插件的存在——两者通过扩展点和 API 解耦。
